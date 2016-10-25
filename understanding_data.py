@@ -75,10 +75,10 @@ def movie_reviews(datafile):
             maximum.append(x[0])
         elif x[1] == min_value:
             minimum.append(x[0])
-            
+
     print "Movie " + str(maximum) + " had the maximum number of reviews with: " + str(max_value) + " reviews"
     print "The following movies had the minimum number of reviews " + str(minimum) + " with: " + str(min_value) + " review"
-        
+
     return sorted_reviews
 
 def main():
@@ -99,12 +99,14 @@ def main():
     
     X = []
     Y = []
+    index = 0
     
-    for movie in reviews:
-        X.append(movie[0])
-        Y.append(movie[1])
-
-    plt.plot(X, Y, 'ro')
+    for movie in reversed(reviews):
+        X.append(movie[1])
+        Y.append(index)
+        index+=1
+    
+    plt.plot(Y, X)
     plt.ylabel('Number of Reviews')
     plt.xlabel('Movie ID')
     plt.axis([0, 1700, 0, 600])
