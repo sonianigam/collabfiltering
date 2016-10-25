@@ -10,9 +10,7 @@ import operator
 
 
 def common_movie_reviews(datafile):
-    #dont get title line in content
     file = open(datafile)
-    first_line = file.readline()
     #read rest of the file 
     content = file.readlines()
     #central reviews dictionary
@@ -78,18 +76,21 @@ def movie_reviews(datafile):
 
     print "Movie " + str(maximum) + " had the maximum number of reviews with: " + str(max_value) + " reviews"
     print "The following movies had the minimum number of reviews " + str(minimum) + " with: " + str(min_value) + " review"
+    
+    print len(minimum)
 
     return sorted_reviews
 
 def main():
     datafile = sys.argv[1]
+    #UNCOMMENT BELOW FOR DATA GRAPH
     # mean, median, raw = common_movie_reviews(datafile)
     # bins = len(set(raw))
     # print "Mean number of common reviewed movies: " + str(mean)
     # print "Median number of common reviewed movies: "+ str(median)
     #
     # plt.hist(raw,bins)
-    # plt.ylabel('Number of Users')
+    # plt.ylabel('Number of Pairs')
     # plt.xlabel('Number in Common')
     # plt.axis([0, 150, 0, 80000])
     # plt.title('MovieLens 100K Dataset Analysis')

@@ -10,9 +10,7 @@ from scipy.stats import mode
 
 #user, movie, rating
 def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, numOfItems):
-    #dont get title line in content
     file = open(datafile)
-    first_line = file.readline()
     #read rest of the file 
     content = file.readlines()
     #hardcoded number of users by number of films (have to be one more than usual because ids are not zero indexed)
@@ -27,18 +25,20 @@ def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
     for line in content:
         review = line.strip()
         review = review.split('\t')
+        
         ratings[int(review[0])][int(review[1])] = float(review[2])
-    
+
     #manhattan distance    
-    if iFlag == 1:
+    if distance == 1:
         #iterate through each user
         for i in xrange(1, 944):
-            if i == userid:
+            if i == int(userid):
                 #find true rating
-                trueRating = ratings[userid][movieid]
+                trueRating = ratings[int(userid)][int(movieid)]
+
             else:
                 #find manhattan distance between target userid and this given user
-                distance = manhattan_distance(ratings[userid], ratings[i])
+                distance = manhattan_distance(ratings[int(userid)], ratings[i])
                 #create a dictionary where distance maps to vector
                 neighbors[distance] = ratings[i]
                 
@@ -46,10 +46,20 @@ def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
         sorted_neighbors = sorted(neighbors.items(), key=operator.itemgetter(0))
         
         #get k closest neighbors based on distance calculation above
-        for i in xrange(k):
+        counter = 0
+        i = 0
+        while counter < k:
             rating = sorted_neighbors[i][1][movieid]
-            #aggregate k closest neighbors ratings
-            k_ratings.append(rating)
+            if iFlag == 1:
+                #aggregate k closest neighbors ratings even if they have a 0 rating for the given movie
+                k_ratings.append(rating)
+                counter += 1
+                i+= 1
+            else:
+                if int(rating) != 0:
+                    k_ratings.append(rating)
+                    counter += 1
+                i+= 1
     
         print k_ratings
         #find mode of k closest neighbors ratings
