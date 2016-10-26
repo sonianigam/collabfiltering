@@ -4,37 +4,93 @@
 
 # import modules you need here.
 import sys
+import numpy as np
+import operator
+from scipy.stats import mode
+import scipy.stats
 
-
+#user, movie, rating
 def item_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, numOfItems):
-    '''
-    build item-based collaborative filter that predicts the rating 
-    of a user for a movie.
-    This function returns the predicted rating and its actual rating.
+    file = open(datafile)
+    #read file 
+    content = file.readlines()
+    #hardcoded number of films by number of users (have to be one more than usual because ids are not zero indexed)
+    ratings = np.zeros((1683,944))
+    neighbors = dict()
+    #list of ratings of k closest neighbors
+    k_ratings = []
+    #return values
+    trueRating = float()
+    predictedRating = float()
+    sorted_neighbors = []
     
-    Parameters
-    ----------
-    <datafile> - a fully specified path to a file formatted like the MovieLens100K data file u.data 
-    <userid> - a userId in the MovieLens100K data
-    <movieid> - a movieID in the MovieLens 100K data set
-    <distance> - a Boolean. If set to 0, use Pearson’s correlation as the distance measure. If 1, use Manhattan distance.
-    <k> - The number of nearest neighbors to consider
-    <iFlag> - A Boolean value. If set to 0 for user-based collaborative filtering, 
-    only users that have actual (ie non-0) ratings for the movie are considered in your top K. 
-    For item-based, use only movies that have actual ratings by the user in your top K. 
-    If set to 1, simply use the top K regardless of whether the top K contain actual or filled-in ratings.
+    for line in content:
+        review = line.strip()
+        review = review.split('\t')
+        ratings[int(review[1])][int(review[0])] = float(review[2])
+    
+    #manhattan distance    
+    if distance == 1:
+        #iterate through each movie
+        for i in xrange(1, 1683):
+            if i == int(movieid):
+                #find true rating
+                trueRating = ratings[int(movieid)][int(userid)]
 
-    returns
-    -------
-    trueRating: <userid>'s actual rating for <movieid>
-    predictedRating: <userid>'s rating predicted by collaborative filter for <movieid>
+            else:
+                #find manhattan distance between target userid and this given user
+                distance = manhattan_distance(ratings[int(movieid)], ratings[i])
+                #create a dictionary where distance maps to movie vector
+                neighbors[distance] = ratings[i]
+                
+        #sort users based on distance 
+        sorted_neighbors = sorted(neighbors.items(), key=operator.itemgetter(0))
+    
+    #pearson's correlation  
+    if distance == 0:
+        #iterate through each user
+        for i in xrange(1, 1683):
+            if i == int(movieid):
+                #find true rating
+                trueRating = ratings[int(movieid)][int(userid)]
 
+            else:
+                #find pearson's correlation between target userid and this given user
+                correlation = (scipy.stats.pearsonr(ratings[int(movieid)], ratings[i]))[0]
+                #create a dictionary where distance maps to vector
+                neighbors[correlation] = ratings[i]
+                
+        #sort users based on distance 
+        sorted_neighbors = sorted(neighbors.items(), key=operator.itemgetter(0))
+        sorted_neighbors = list(reversed(sorted_neighbors))
+                
+    #get k closest neighbors based on distance calculation above
+    counter = 0
+    i = 0
+    while counter < k:
+        rating = sorted_neighbors[i][1][userid]
+        if iFlag == 1:
+            #aggregate k closest neighbors ratings even if they have a 0 rating for the given movie
+            k_ratings.append(rating)
+            counter += 1
+            i+= 1
+        else:
+            if int(rating) != 0:
+                k_ratings.append(rating)
+                counter += 1
+            i+= 1
 
-    AUTHOR: Sonia Nigam (This is where you put your name)
-    '''
+    print k_ratings
+    #find mode of k closest neighbors ratings
+    predictedRating = mode(k_ratings)[0][0]
   
     return trueRating, predictedRating
 
+def manhattan_distance(list1, list2):
+    distance = 0
+    for i in xrange(len(list1)):
+        distance+= abs(list1[i]-list2[i])
+    return distance
 
 def main():
     datafile = sys.argv[1]
