@@ -6,6 +6,7 @@ from scipy.stats import mode
 import scipy.stats
 import math
 from operator import itemgetter
+import pickle
 
 #user, movie, rating
 def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, numOfItems):
@@ -103,13 +104,19 @@ def main():
     X = []
     Y = []
     
-    for i in xrange(50):
-        temp_content = content
-        for j in xrange(100):
-            index = random.randint(0, len(temp_content)-1)
-            draw = temp_content[index]
-            samples[i].append(draw)
-            temp_content = temp_content[0:index]+temp_content[(index+1):]
+    try:
+        samples = pickle.load(open("var.pickle", "rb"))
+    except (OSError, IOError) as e:
+        print "enter"
+        for i in xrange(50):
+            temp_content = content
+            for j in xrange(100):
+                index = random.randint(0, len(temp_content)-1)
+                draw = temp_content[index]
+                samples[i].append(draw)
+                temp_content = temp_content[0:index]+temp_content[(index+1):]
+                
+        pickle.dump(samples, open("var.pickle", "wb"))
     
     for i in xrange(50):
         total_error = 0
@@ -122,8 +129,8 @@ def main():
             
             datafile = list(set(content) - set(samples[i]))
             predictedRating = user_based_cf(datafile,userid, movieid, distance, k, iFlag, numOfUsers, numOfItems)
-            # print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
-            # .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
+            print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
+            .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
             
             error = predictedRating - trueRating
             total_error += math.pow(error, 2)
