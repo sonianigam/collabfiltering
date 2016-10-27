@@ -8,13 +8,13 @@ import math
 from operator import itemgetter
 
 #user, movie, rating
-def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, numOfItems):
-    #hardcoded number of users by number of films (have to be one more than usual because ids are not zero indexed)
-    ratings = np.zeros((944,1683))
-    #all users where distance is key and vector is value
+def item_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, numOfItems):
+    #hardcoded number of films by number of users (have to be one more than usual because ids are not zero indexed)
+    ratings = np.zeros((1683,944))
     neighbors = []
     #list of ratings of k closest neighbors
     k_ratings = []
+    #return values
     trueRating = float()
     predictedRating = float()
     sorted_neighbors = []
@@ -22,47 +22,51 @@ def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
     for line in datafile:
         review = line.strip()
         review = review.split('\t')
-        
-        ratings[int(review[0])][int(review[1])] = float(review[2])
-
+        ratings[int(review[1])][int(review[0])] = float(review[2])
+    
     #manhattan distance    
     if distance == 1:
-        #iterate through each user
-        for i in xrange(1, 944):
-            if i == int(userid):
+        #iterate through each movie
+        for i in xrange(1, 1683):
+            if i == int(movieid):
+                #find true rating
                 pass
+
             else:
                 #find manhattan distance between target userid and this given user
-                distance = manhattan_distance(ratings[int(userid)], ratings[i])
-                #create a dictionary where distance maps to vector
+                distance = manhattan_distance(ratings[int(movieid)], ratings[i])
+                #create a dictionary where distance maps to movie vector
                 neighbors.append((distance, ratings[i]))
                 
         #sort users based on distance 
         sorted_neighbors = sorted(neighbors, key=itemgetter(0))
-        
+    
     #pearson's correlation  
     if distance == 0:
         #iterate through each user
-        for i in xrange(1, 944):
-            if i == int(userid):
+        for i in xrange(1, 1683):
+            if i == int(movieid):
+                #find true rating
                 pass
             else:
                 #find pearson's correlation between target userid and this given user
-                correlation = (scipy.stats.pearsonr(ratings[int(userid)], ratings[i]))[0]
+                correlation = (scipy.stats.pearsonr(ratings[int(movieid)], ratings[i]))[0]
                 #create a dictionary where distance maps to vector
                 neighbors.append((correlation, ratings[i]))
                 
         #sort users based on distance 
         sorted_neighbors = sorted(neighbors, key=itemgetter(0))
         sorted_neighbors = list(reversed(sorted_neighbors))
-        
+                
     #get k closest neighbors based on distance calculation above
     counter = 0
-    i = 0  
+    i = 0
+    
     while counter < k:
-        if i > 941:
+        if i > 1680:
             break
-        rating = sorted_neighbors[i][1][int(movieid)]
+            
+        rating = sorted_neighbors[i][1][int(userid)]
         if iFlag == 1:
             #aggregate k closest neighbors ratings even if they have a 0 rating for the given movie
             k_ratings.append(rating)
@@ -74,12 +78,13 @@ def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
                 counter += 1
             i+= 1
 
+    print k_ratings
     #find mode of k closest neighbors ratings
     if len(k_ratings) == 0:
         predictedRating = 0
     else:     
-        predictedRating = mode(k_ratings)[0][0]      
-        
+        predictedRating = mode(k_ratings)[0][0]
+      
     return predictedRating
 
 def manhattan_distance(list1, list2):
@@ -121,9 +126,9 @@ def main():
             trueRating = int(review[2])
             
             datafile = list(set(content) - set(samples[i]))
-            predictedRating = user_based_cf(datafile,userid, movieid, distance, k, iFlag, numOfUsers, numOfItems)
-            # print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
-            # .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
+            predictedRating = item_based_cf(datafile,userid, movieid, distance, k, iFlag, numOfUsers, numOfItems)
+            print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
+            .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
             
             error = predictedRating - trueRating
             total_error += math.pow(error, 2)
@@ -136,15 +141,15 @@ def main():
     final_MSE = MSE_total/50
     print "THE MSE OF THIS SAMPLING WAS: " + str(final_MSE)
     
-    for i in xrange(50):
-        X.append(i)
-    
-    plt.plot(Y, X)
-    plt.ylabel('Number of Reviews')
-    plt.xlabel('Sample Number')
-    plt.axis([0, 51, 0, 25])
-    plt.title('User Collab iFlag = 0')
-    plt.savefig('UCIflag0.png')
+    # for i in xrange(50):
+    #     X.append(i)
+    #
+    # plt.plot(Y, X)
+    # plt.ylabel('Number of Reviews')
+    # plt.xlabel('Sample Number')
+    # plt.axis([0, 51, 0, 25])
+    # plt.title('User Collab iFlag = 0')
+    # plt.savefig('UCIflag0.png')
             
 
 

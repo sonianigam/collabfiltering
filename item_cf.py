@@ -5,7 +5,7 @@
 # import modules you need here.
 import sys
 import numpy as np
-import operator
+from operator import itemgetter
 from scipy.stats import mode
 import scipy.stats
 
@@ -16,7 +16,7 @@ def item_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
     content = file.readlines()
     #hardcoded number of films by number of users (have to be one more than usual because ids are not zero indexed)
     ratings = np.zeros((1683,944))
-    neighbors = dict()
+    neighbors = []
     #list of ratings of k closest neighbors
     k_ratings = []
     #return values
@@ -41,10 +41,10 @@ def item_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
                 #find manhattan distance between target userid and this given user
                 distance = manhattan_distance(ratings[int(movieid)], ratings[i])
                 #create a dictionary where distance maps to movie vector
-                neighbors[distance] = ratings[i]
+                neighbors.append((distance, ratings[i]))
                 
         #sort users based on distance 
-        sorted_neighbors = sorted(neighbors.items(), key=operator.itemgetter(0))
+        sorted_neighbors = sorted(neighbors, key=itemgetter(0))
     
     #pearson's correlation  
     if distance == 0:
@@ -58,17 +58,20 @@ def item_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
                 #find pearson's correlation between target userid and this given user
                 correlation = (scipy.stats.pearsonr(ratings[int(movieid)], ratings[i]))[0]
                 #create a dictionary where distance maps to vector
-                neighbors[correlation] = ratings[i]
+                neighbors.append((correlation, ratings[i]))
                 
         #sort users based on distance 
-        sorted_neighbors = sorted(neighbors.items(), key=operator.itemgetter(0))
+        sorted_neighbors = sorted(neighbors, key=itemgetter(0))
         sorted_neighbors = list(reversed(sorted_neighbors))
                 
     #get k closest neighbors based on distance calculation above
     counter = 0
     i = 0
     while counter < k:
-        rating = sorted_neighbors[i][1][userid]
+        if i > 1681:
+            break
+            
+        rating = sorted_neighbors[i][1][int(userid)]
         if iFlag == 1:
             #aggregate k closest neighbors ratings even if they have a 0 rating for the given movie
             k_ratings.append(rating)
@@ -82,8 +85,12 @@ def item_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
 
     print k_ratings
     #find mode of k closest neighbors ratings
-    predictedRating = mode(k_ratings)[0][0]
-  
+    #find mode of k closest neighbors ratings
+    if len(k_ratings) == 0:
+        predictedRating = 0
+    else:     
+        predictedRating = mode(k_ratings)[0][0]
+      
     return trueRating, predictedRating
 
 def manhattan_distance(list1, list2):
