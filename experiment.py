@@ -129,14 +129,14 @@ def main():
             
             datafile = list(set(content) - set(samples[i]))
             predictedRating = user_based_cf(datafile,userid, movieid, distance, k, iFlag, numOfUsers, numOfItems)
-            print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
-            .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
+            # print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
+            # .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
             
             error = predictedRating - trueRating
             total_error += math.pow(error, 2)
         
         MSE_total += total_error/100
-        print "THE MSE OF THIS SAMPLE WAS"
+        print "THE AGGREGATE MSE WITH THIS SAMPLE IS"
         Y.append(MSE_total)
         print MSE_total
         
