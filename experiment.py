@@ -151,8 +151,8 @@ def main():
     plt.ylabel('MSE')
     plt.xlabel('Sample Number')
     plt.axis([0, 50, 0, 25])
-    plt.title('User Collab k = 4')
-    plt.savefig('UCk4.png')
+    plt.title('User Collab k = 16')
+    plt.savefig('UCk16.png')
             
 
 
