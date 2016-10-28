@@ -105,6 +105,7 @@ def main():
     X = []
     Y = []
     
+    #create 50 samples of 100 if doesnt exist, grab if so
     try:
         samples = pickle.load(open("var.pickle", "rb"))
     except (OSError, IOError) as e:
@@ -119,6 +120,7 @@ def main():
                 
         pickle.dump(samples, open("var.pickle", "wb"))
     
+    #iterate through each draw of the given samples
     for i in xrange(50):
         total_error = 0
         for j in xrange(100):
@@ -132,21 +134,26 @@ def main():
             predictedRating = user_based_cf(datafile,userid, movieid, distance, k, iFlag, numOfUsers, numOfItems)
             # print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
             # .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
-
+            
+            #error 
             error = predictedRating - trueRating
+            #squared error
             total_error += math.pow(error, 2)
 
+        #aggregate MSE
         MSE_total += total_error/100
         print "MSE"
         Y.append(total_error/100)
         print total_error/100
 
+    #average MSE
     final_MSE = MSE_total/50
     print "THE MSE OF THIS SAMPLING WAS: " + str(final_MSE)
-
+    
+    #error distribution 
     print Y
     
-
+    #plot MSE by iteration number
     for i in xrange(50):
         X.append(i)
 

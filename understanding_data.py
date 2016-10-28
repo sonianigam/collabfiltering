@@ -10,6 +10,7 @@ import operator
 
 
 def common_movie_reviews(datafile):
+    #graphs number of common reviews by number of pairs
     file = open(datafile)
     #read rest of the file 
     content = file.readlines()
@@ -18,7 +19,8 @@ def common_movie_reviews(datafile):
     #keeps track of pairs with same number of reviews
     numbers = dict()
     raw_mm_calc = []
-            
+    
+    #crate a dictionary of users to reviewed movies
     for line in content:
 
         review = line.strip()
@@ -29,15 +31,17 @@ def common_movie_reviews(datafile):
         else:
             reviews[review[0]] = [review[1]]
             
-    
+    #find common reviews between users
     for x in reviews:
         for y in reviews:
             if y == x:
                 pass
             else:
+                #get common elements between reviewed movies
                 common = set(reviews[x])&set(reviews[y])
                 raw_mm_calc.append(len(common))
 
+    #find returned values
     median = np.median(np.array(raw_mm_calc))
     mean = np.mean(np.array(raw_mm_calc))
     
@@ -54,6 +58,7 @@ def movie_reviews(datafile):
     maximum = []
     minimum = []
     
+    #create a dictionary of movies
     for line in content:
         movie = line.strip()
         movie = movie.split('\t')
@@ -62,12 +67,15 @@ def movie_reviews(datafile):
             reviews[movie[1]] += 1
         else:
             reviews[movie[1]] = 1
-            
+    
+    #sort in order of number of common
     sorted_reviews = sorted(reviews.items(), key=operator.itemgetter(1))
     
+    #get max and min of common numbers
     max_value = sorted_reviews[len(sorted_reviews)-1][1]
     min_value = sorted_reviews[0][1]
     
+    #find max and min values and corresponding movies
     for x in sorted_reviews:
         if x[1] == max_value:
             maximum.append(x[0])
@@ -102,6 +110,8 @@ def main():
     Y = []
     index = 0
     
+    
+    #output Movie reviews graph
     for movie in reversed(reviews):
         X.append(movie[1])
         Y.append(index)

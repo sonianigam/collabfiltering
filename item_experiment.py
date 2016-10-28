@@ -89,6 +89,7 @@ def item_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, num
       
     return predictedRating
 
+#find manhattan distance between two lists
 def manhattan_distance(list1, list2):
     distance = 0
     for i in xrange(len(list1)):
@@ -110,6 +111,8 @@ def main():
     X = []
     Y = []
     
+    
+    #pickle the file so same sample is always used, get 50 samples of 100 draws
     try:
         samples = pickle.load(open("var.pickle", "rb"))
     except (OSError, IOError) as e:
@@ -137,21 +140,26 @@ def main():
             predictedRating = item_based_cf(datafile,userid, movieid, distance, k, iFlag, numOfUsers, numOfItems)
             # print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
             # .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
-
+            
+            #find error 
             error = predictedRating - trueRating
+            #squared error and aggregate
             total_error += math.pow(error, 2)
 
+        #add total MSE
         MSE_total += total_error/100
         print "THE MSE OF THIS SAMPLE WAS"
         Y.append(total_error/100)
         print total_error/100
-        
+    
+    #data distribution
     print Y
     
-
+    #average across all MSE
     final_MSE = MSE_total/50
     print "THE MSE OF THIS SAMPLING WAS: " + str(final_MSE)
 
+    #plot graph of MSE by iteration
     for i in xrange(50):
         X.append(i)
 
