@@ -7,6 +7,7 @@ import scipy.stats
 import math
 from operator import itemgetter
 import pickle
+import matplotlib.pyplot as plt
 
 #user, movie, rating
 def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, numOfItems):
@@ -126,32 +127,32 @@ def main():
             userid = review[0]
             movieid = review[1]
             trueRating = int(review[2])
-            
+
             datafile = list(set(content) - set(samples[i]))
             predictedRating = user_based_cf(datafile,userid, movieid, distance, k, iFlag, numOfUsers, numOfItems)
             # print 'userID:{} movieID:{} trueRating:{} predictedRating:{} distance:{} K:{} I:{}'\
             # .format(userid, movieid, trueRating, predictedRating, distance, k, iFlag)
-            
+
             error = predictedRating - trueRating
             total_error += math.pow(error, 2)
-        
+
         MSE_total += total_error/100
-        print "THE AGGREGATE MSE WITH THIS SAMPLE IS"
-        Y.append(MSE_total)
-        print MSE_total
-        
+        print "MSE"
+        Y.append(total_error/100)
+        print total_error/100
+
     final_MSE = MSE_total/50
     print "THE MSE OF THIS SAMPLING WAS: " + str(final_MSE)
-    
+
     for i in xrange(50):
-        X.append(i)
-    
-    plt.plot(Y, X)
-    plt.ylabel('Number of Reviews')
+        X.append(i)  
+
+    plt.plot(X, Y)
+    plt.ylabel('MSE')
     plt.xlabel('Sample Number')
-    plt.axis([0, 51, 0, 25])
-    plt.title('User Collab iFlag = 0')
-    plt.savefig('UCIflag0.png')
+    plt.axis([0, 50, 0, 25])
+    plt.title('User Collab k = 4')
+    plt.savefig('UCk4.png')
             
 
 
