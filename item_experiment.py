@@ -145,10 +145,13 @@ def main():
         print "THE MSE OF THIS SAMPLE WAS"
         Y.append(total_error/100)
         print total_error/100
+        
+    print Y
+    
 
     final_MSE = MSE_total/50
     print "THE MSE OF THIS SAMPLING WAS: " + str(final_MSE)
-    
+
     for i in xrange(50):
         X.append(i)
 
@@ -158,7 +161,7 @@ def main():
     plt.axis([0, 50, 0, 25])
     plt.title('Item Collab k = 32')
     plt.savefig('ICideal.png')
-            
+
 
 
 if __name__ == "__main__":

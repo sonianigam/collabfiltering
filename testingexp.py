@@ -119,7 +119,7 @@ def main():
                 
         pickle.dump(samples, open("var.pickle", "wb"))
     
-    for i in xrange(50):
+    for i in xrange(5):
         total_error = 0
         for j in xrange(100):
             review = samples[i][j].strip()
@@ -141,21 +141,20 @@ def main():
         Y.append(total_error/100)
         print total_error/100
 
-    final_MSE = MSE_total/50
+    #final_MSE = MSE_total/50
     print "THE MSE OF THIS SAMPLING WAS: " + str(final_MSE)
 
     print Y
-    
 
-    for i in xrange(50):
-        X.append(i)
-
-    plt.plot(X, Y)
-    plt.ylabel('MSE')
-    plt.xlabel('Sample Number')
-    plt.axis([0, 50, 0, 25])
-    plt.title('User Collab k = 16')
-    plt.savefig('UCk16.png')
+    # for i in xrange(50):
+    #     X.append(i)
+    #
+    # plt.plot(X, Y)
+    # plt.ylabel('MSE')
+    # plt.xlabel('Sample Number')
+    # plt.axis([0, 50, 0, 25])
+    # plt.title('User Collab k = 16')
+    # plt.savefig('UCk16.png')
 
 
 
