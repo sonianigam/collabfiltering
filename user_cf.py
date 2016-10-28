@@ -11,6 +11,33 @@ import scipy.stats
 
 #user, movie, rating
 def user_based_cf(datafile, userid, movieid, distance, k, iFlag, numOfUsers, numOfItems):
+    '''
+    build user-based collaborative filter that predicts the rating 
+    of a user for a movie.
+    This function returns the predicted rating and its actual rating.
+    
+    Parameters
+    ----------
+    <datafile> - a fully specified path to a file formatted like the MovieLens100K data file u.data 
+    <userid> - a userId in the MovieLens100K data
+    <movieid> - a movieID in the MovieLens 100K data set
+    <distance> - a Boolean. If set to 0, use Pearsons correlation as the distance measure. If 1, use Manhattan distance.
+    <k> - The number of nearest neighbors to consider
+    <iFlag> - A Boolean value. If set to 0 for user-based collaborative filtering, 
+    only users that have actual (ie non-0) ratings for the movie are considered in your top K. 
+    For user-based, use only movies that have actual ratings by the user in your top K. 
+    If set to 1, simply use the top K regardless of whether the top K contain actual or filled-in ratings.
+
+    returns
+    -------
+    trueRating: <userid>'s actual rating for <movieid>
+    predictedRating: <userid>'s rating predicted by collaborative filter for <movieid>
+
+
+    AUTHOR: Sonia Nigam (This is where you put your name)
+    '''
+    
+    
     file = open(datafile)
     #read file 
     content = file.readlines()
